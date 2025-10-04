@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+langchain
+langchain-community
+ollama
+faiss-cpu
+pymupdf
+pydantic
+langchain-google-genai  # Nueva librería para Gemini
+pypdfium2 # PyMuPDFLoader usa esto internamente
+python-dotenv         # Para manejar la API key

@@ -1,0 +1,263 @@
+/* Configuración general y variables */
+:root {
+    --bg-color: #374151; /* Fondo oscuro */
+    --primary-color: #1f2937; /* Azul más oscuro */
+    --accent-color: #844fff; /* Rojo/rosa vibrante */
+    --text-color-light: #ffffff; /* Texto claro */
+    --text-color-muted: #d0d0d0; /* Texto gris claro */
+    --border-color: #898c92; /* Borde sutil */
+    --font-family: 'Roboto', sans-serif;
+}
+
+
+body {
+    background-color: var(--bg-color-dark);
+    color: var(--text-color-light);
+    font-family: var(--font-family);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* ... (El resto del código CSS se mantiene igual) ... */
+
+/* Header y Footer: Usan el color oscuro para crear un bloque arriba y abajo */
+header, footer {
+    background-color: #354463;
+    
+}
+
+/* Hero Section: Usa el color oscuro principal para destacar */
+.hero {
+    background-color: #252f44;
+}
+
+/* Sections: Aquí es donde creamos los bloques de color */
+.features {
+    background-color: #354463; /* Un tono diferente para esta sección */
+    text-align: center;
+    padding: 4rem 5%;
+}
+
+.articles {
+    background-color: #252f44; /* Otro tono para la siguiente sección */
+    text-align: center;
+    padding: 4rem 5%;
+}
+
+.links-section {
+    background-color: #354463; /* Volvemos a un tono para crear contraste */
+    text-align: center;
+    padding: 4rem 5%;
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--text-color-light);
+}
+
+.cta-button {
+    background-color: var(--accent-color);
+    color: var(--text-color-light);
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.cta-button:hover {
+    background-color: #ff6b82; /* Tono de rojo más claro al pasar el mouse */
+}
+
+/* Header */
+/* Header */
+header {
+    background-color: var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+
+    /* --- INICIO DEL CAMBIO --- */
+    position: fixed;
+    top: 0;
+    width: 90%;
+    z-index: 1000;
+    /* --- FIN DEL CAMBIO --- */
+}
+
+header .logo img {
+    height: 40px; /* Tamaño del logo */
+}
+
+header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+header nav li {
+    margin-left: 2rem;
+    position: relative; /* Esencial para el dropdown */
+}
+
+/* INICIO DE LOS NUEVOS ESTILOS PARA EL DROPDOWN */
+.dropdown-menu {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--primary-color);
+    min-width: 150px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.dropdown-menu a {
+    color: var(--text-color-light);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--accent-color);
+}
+
+.dropdown.active .dropdown-menu {
+    display: block; /* Muestra el menú cuando la clase 'active' está presente */
+}
+/* FIN DE LOS NUEVOS ESTILOS PARA EL DROPDOWN */
+
+/* Hero Section */
+.hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5rem 5%;
+    text-align: center;
+    gap: 2rem;
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: var(--text-color-muted);
+}
+
+.hero-image img {
+    max-width: 400px;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Features Section */
+.features, .articles, .links-section {
+    text-align: center;
+    padding: 4rem 5%;
+}
+
+.features h2, .articles h2, .links-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background-color: var(--primary-color);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+}
+
+/* Articles Section */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.article-card {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+.article-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.article-card h3, .article-card p, .article-card a {
+    padding: 0 1.5rem;
+}
+
+.article-card h3 {
+    margin-top: 1rem;
+}
+
+.article-card p {
+    color: var(--text-color-muted);
+}
+
+.article-card a {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+/* Links Section */
+.links-section ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.links-section li a {
+    font-size: 1.1rem;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-color);
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-color-muted);
+}

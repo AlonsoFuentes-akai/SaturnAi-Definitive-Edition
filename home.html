@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaturnIA Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="assets/SaturnIalogo.png">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>SaturnIA</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#inicio" style="color: white;">Inicio</a></li>
+                <li><a href="#caracteristicas" style="color: white;">Características</a></li>
+                <li><a href="#articulos" style="color: white;">Artículos</a></li>
+                <li class="dropdown">
+                    <button class="cta-button dropdown-button">Cuenta</button>
+                    <div class="dropdown-menu">
+                    <!-- <a href="http://localhost:3000">Registrarse</a> -->
+                     <a href="http://localhost:3000">Iniciar sesión</a>
+                    </div>
+                </li>
+                </ul>
+        </nav>
+    </header>
+
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <h1>Tus derechos laborales, al alcance de un chat</h1>
+            <p>Te asiste de manera gratuita para que conozcas tus derechos como trabajador en casos de despido, contratos, salarios y más.</p>
+        </div>
+        <div class="hero-image">
+            <img src="SaturnIalogo.png" alt="Imagen representativa de un chatbot legal">
+        </div>
+    </section>
+
+    <section class="features" id="caracteristicas">
+        <h2>¿Qué puede hacer SaturnIA por ti?</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Análisis de Leyes</h3>
+                <p>Te permite ir más allá de la simple consulta. Nuestro bot está diseñado para ser tu asistente legal más eficiente, capaz de leer y analizar grandes volúmenes de texto para darte respuestas precisas al instante. Ya sea que busques un artículo específico o necesites comprender un concepto complejo.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Resultados de los prompt</h3> 
+                <p>Va más allá de una simple búsqueda. SaturnIA lee el Código de Trabajo y otras leyes de Honduras en formato PDF, permitiéndote preguntar por artículos o conceptos específicos y obtener respuestas directas, ahorrándote horas de lectura.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Asistencia 24/7</h3>
+                <p>La práctica legal no se detiene, y nosotros tampoco. SaturnIA está disponible las 24 horas del día, los 7 días de la semana, para resolver tus dudas, dándote la tranquilidad de tener un experto siempre a tu lado, sin importar la hora o el lugar.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="articles" id="articulos">
+        <h2>Recursos y Artículos Legales</h2>
+        <div class="articles-grid">
+            <div class="article-card">
+                <a href="https://www.tsc.gob.hn/web/leyes/codigo_de_trabajo.pdf">
+                    <h3 style="color: white;">Codigo de Trabajo</h3>
+                </a>
+                <img src="Codigo de trabajo.png" alt="Imagen de artículo legal">
+            </div>
+            <div class="article-card">
+                <a style="color: white;" href="https://www.tsc.gob.hn/web/leyes/Decreto_130-2017.pdf">
+                <h3>Codigo Penal</h3>
+                </a>
+                <img src="Codigo penal.png" alt="Imagen de artículo legal">
+            </div>
+            <div class="article-card">
+                <a style="color: white;" href="https://www.tsc.gob.hn/web/leyes/codigo_de_familia.pdf">
+                <h3>Codigo de la Familia</h3>
+                </a>
+                <img src="Codigo de familia.png" alt="Imagen de artículo legal">
+            </div>
+        </div>
+    </section>
+
+    <section class="links-section">
+        <h2>Enlaces a Sitios de Interés</h2>
+        <p>Visita las fuentes oficiales para más información sobre el marco legal en Honduras.</p>
+        <ul>
+            <li><a style="color: white;" href="https://www.poderjudicial.gob.hn/" target="_blank">Poder Judicial de Honduras</a></li>
+            <li><a style="color: white;" href="https://www.congresonacional.hn/" target="_blank">Congreso Nacional de Honduras</a></li>
+            <li><a style="color: white;" href="https://www.tsc.gob.hn/" target="_blank">Tribunal Superior de Cuentas</a></li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 SaturnIA. Todos los derechos reservados.</p>
+        <p>Contacto: info@saturnia.com</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
