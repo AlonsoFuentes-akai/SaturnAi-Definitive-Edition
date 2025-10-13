@@ -9,7 +9,6 @@ import {
     sendPasswordResetEmail,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    fetchSignInMethodsForEmail,
     confirmPasswordReset,
     verifyPasswordResetCode
 } from "firebase/auth";
@@ -109,7 +108,6 @@ function ChatBot({ user, onBack }) {
             }));
             setChatSessions(sessions);
             
-            // Si no hay chat actual y hay sesiones, cargar la más reciente
             if (!currentChatId && sessions.length > 0) {
                 setCurrentChatId(sessions[0].id);
             }
@@ -173,7 +171,6 @@ function ChatBot({ user, onBack }) {
     };
 
     const generateChatTitle = (message) => {
-        // Generar un título basado en la primera pregunta del usuario
         const words = message.split(' ').slice(0, 6).join(' ');
         return words.length > 30 ? words.substring(0, 27) + '...' : words;
     };
@@ -188,7 +185,6 @@ function ChatBot({ user, onBack }) {
             timestamp: new Date()
         };
 
-        // Si no hay chat actual, crear uno nuevo
         if (!currentChatId) {
             await createNewChat();
         }
@@ -196,13 +192,11 @@ function ChatBot({ user, onBack }) {
         const newMessages = [...messages, userMessage];
         setMessages(newMessages);
         
-        // Si es el primer mensaje del usuario en este chat, actualizar el título
-        const isFirstUserMessage = messages.length === 1; // Solo mensaje de bienvenida
+        const isFirstUserMessage = messages.length === 1;
         
         setInputMessage('');
         setIsLoading(true);
 
-        // Preparar historial para la API
         const historyForAPI = messages.map(msg => ({
             role: msg.isBot ? 'assistant' : 'user',
             content: msg.text
@@ -235,7 +229,6 @@ function ChatBot({ user, onBack }) {
                 const finalMessages = [...newMessages, botMessage];
                 setMessages(finalMessages);
                 
-                // Guardar mensajes en Firebase
                 const chatTitle = isFirstUserMessage ? generateChatTitle(userMessage.text) : null;
                 await saveChatMessage(finalMessages, chatTitle);
                 
@@ -564,45 +557,132 @@ function Dashboard({ user }) {
         }
     };
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
         if (!file) return;
 
-        const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}-${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
+        // Verificar autenticación
+        if (!user || !user.uid) {
+            setError("Debes estar autenticado para subir archivos.");
+            return;
+        }
 
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setUploadProgress(progress);
-            },
-            (error) => {
-                console.error("Error al subir el archivo:", error);
-                setError("Error al subir el archivo.");
-            },
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                    await addDoc(collection(db, "files"), {
-                        userId: user.uid,
-                        name: file.name,
-                        url: downloadURL,
-                        createdAt: serverTimestamp(),
-                    });
-                    setFile(null);
+        setError('');
+        setUploadProgress(0);
+
+        try {
+            // Sanitizar el nombre del archivo
+            const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const timestamp = Date.now();
+            const storagePath = `uploads/${user.uid}/${timestamp}-${sanitizedFileName}`;
+            
+            console.log("Subiendo archivo a:", storagePath);
+            
+            const storageRef = ref(storage, storagePath);
+            
+            // Agregar metadata
+            const metadata = {
+                contentType: 'application/pdf',
+                customMetadata: {
+                    'uploadedBy': user.uid,
+                    'originalName': file.name
+                }
+            };
+
+            const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                    console.log(`Progreso: ${progress.toFixed(2)}%`);
+                },
+                (error) => {
+                    console.error("Error al subir el archivo:", error);
+                    console.error("Código de error:", error.code);
+                    console.error("Mensaje:", error.message);
+                    
+                    let errorMessage = "Error al subir el archivo.";
+                    
+                    switch (error.code) {
+                        case 'storage/unauthorized':
+                            errorMessage = "No tienes permisos para subir archivos. Verifica tu autenticación.";
+                            break;
+                        case 'storage/canceled':
+                            errorMessage = "La subida fue cancelada.";
+                            break;
+                        case 'storage/unknown':
+                            errorMessage = "Error desconocido. Verifica tu conexión y las reglas de Firebase Storage.";
+                            break;
+                        case 'storage/quota-exceeded':
+                            errorMessage = "Se ha excedido la cuota de almacenamiento.";
+                            break;
+                        case 'storage/invalid-checksum':
+                            errorMessage = "El archivo está corrupto. Intenta nuevamente.";
+                            break;
+                        default:
+                            errorMessage = `Error: ${error.message}`;
+                    }
+                    
+                    setError(errorMessage);
                     setUploadProgress(0);
-                });
-            }
-        );
+                },
+                async () => {
+                    try {
+                        console.log("Subida completada, obteniendo URL...");
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        console.log("URL obtenida:", downloadURL);
+                        
+                        await addDoc(collection(db, "files"), {
+                            userId: user.uid,
+                            name: file.name,
+                            url: downloadURL,
+                            storagePath: storagePath,
+                            size: file.size,
+                            createdAt: serverTimestamp(),
+                        });
+                        
+                        console.log("Documento guardado en Firestore");
+                        setFile(null);
+                        setUploadProgress(0);
+                        setError('');
+                    } catch (firestoreError) {
+                        console.error("Error guardando en Firestore:", firestoreError);
+                        setError("El archivo se subió pero hubo un error al guardar los datos.");
+                    }
+                }
+            );
+        } catch (error) {
+            console.error("Error iniciando la subida:", error);
+            setError("Error al iniciar la subida del archivo.");
+            setUploadProgress(0);
+        }
     };
 
-    const handleDeleteFile = async (fileId, fileUrl) => {
+    const handleDeleteFile = async (fileId, fileUrl, storagePath) => {
         if (window.confirm("¿Estás seguro de que quieres eliminar este archivo?")) {
             try {
-                const fileRef = ref(storage, fileUrl);
+                // Intentar primero con storagePath si está disponible
+                const fileRef = storagePath ? ref(storage, storagePath) : ref(storage, fileUrl);
+                
                 await deleteObject(fileRef);
                 await deleteDoc(doc(db, "files", fileId));
+                
+                console.log("Archivo eliminado correctamente");
             } catch (error) {
                 console.error("Error al eliminar el archivo:", error);
-                setError("Error al eliminar el archivo.");
+                
+                if (error.code === 'storage/object-not-found') {
+                    // Si el archivo no existe en Storage, eliminar solo de Firestore
+                    try {
+                        await deleteDoc(doc(db, "files", fileId));
+                        console.log("Registro eliminado de Firestore");
+                    } catch (firestoreError) {
+                        console.error("Error eliminando de Firestore:", firestoreError);
+                        setError("Error al eliminar el registro del archivo.");
+                    }
+                } else {
+                    setError("Error al eliminar el archivo.");
+                }
             }
         }
     };
@@ -683,7 +763,7 @@ function Dashboard({ user }) {
                                             {fileItem.name}
                                         </a>
                                     </div>
-                                    <button onClick={() => handleDeleteFile(fileItem.id, fileItem.url)} className="p-2 text-red-400 hover:text-red-500 rounded-full transition-colors">
+                                    <button onClick={() => handleDeleteFile(fileItem.id, fileItem.url, fileItem.storagePath)} className="p-2 text-red-400 hover:text-red-500 rounded-full transition-colors">
                                         <DeleteIcon />
                                     </button>
                                 </li>
@@ -707,7 +787,6 @@ function PasswordResetComponent({ oobCode, onComplete }) {
     const [isValidCode, setIsValidCode] = useState(false);
 
     useEffect(() => {
-        // Verificar que el código es válido y obtener el email
         const verifyCode = async () => {
             try {
                 const email = await verifyPasswordResetCode(auth, oobCode);
@@ -729,7 +808,6 @@ function PasswordResetComponent({ oobCode, onComplete }) {
         setError('');
         setSuccess('');
 
-        // Validaciones
         if (!newPassword || !confirmPassword) {
             setError("Por favor, completa todos los campos.");
             return;
@@ -751,7 +829,6 @@ function PasswordResetComponent({ oobCode, onComplete }) {
             await confirmPasswordReset(auth, oobCode, newPassword);
             setSuccess("¡Contraseña restablecida exitosamente! Ya puedes iniciar sesión con tu nueva contraseña.");
             
-            // Esperar 3 segundos antes de redirigir al login
             setTimeout(() => {
                 onComplete();
             }, 3000);
@@ -877,6 +954,7 @@ function PasswordResetComponent({ oobCode, onComplete }) {
     );
 }
 
+// --- Auth Component ---
 function AuthComponent() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -945,7 +1023,6 @@ function AuthComponent() {
                 setSuccessMessage("¡Inicio de sesión exitoso! Redirigiendo...");
             } else {
                 await createUserWithEmailAndPassword(auth, email, password);
-                // Optionally store firstName and lastName in Firestore
                 await setDoc(doc(db, "users", auth.currentUser.uid), {
                     firstName,
                     lastName,
@@ -1068,7 +1145,7 @@ function AuthComponent() {
                                 value={password}
                                 onChange={handlePasswordChange}
                                 className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 border-gray-600 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                placeholder=""
+                                placeholder="Contraseña"
                                 disabled={isLoading}
                             />
                             <button
@@ -1158,7 +1235,6 @@ function App() {
     const [resetCode, setResetCode] = useState(null);
 
     useEffect(() => {
-        // Verificar si estamos en modo de reset de contraseña
         const urlParams = new URLSearchParams(window.location.search);
         const mode = urlParams.get('mode');
         const oobCode = urlParams.get('oobCode');
@@ -1170,9 +1246,8 @@ function App() {
             return;
         }
 
-        // Listener de autenticación
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("Auth state changed:", user ? "User logged in" : "No user"); // Debug log
+            console.log("Auth state changed:", user ? "User logged in" : "No user");
             setCurrentUser(user);
             setLoading(false);
         });
