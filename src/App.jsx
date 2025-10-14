@@ -588,6 +588,22 @@ function Dashboard({ user }) {
                 }
             };
 
+            const formData = new FormData();
+            formData.append("file",file);
+            const response = await fetch("http://localhost:8000/upload-law-document",{
+                method: "POST",
+                body: formData,    
+            });
+                console.log("Documento enviado a Backend");
+            const result = await response.json();
+
+            if (response.ok && result.success){
+                setUploadProgress(100);
+                setTimeout(() => setUploadProgress(0),300);
+            }else{
+                throw new Error(result.message || "Error al subir el archivo y reconstruir el índice.");
+            }
+
             const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
             uploadTask.on('state_changed',
